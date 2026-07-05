@@ -8,6 +8,7 @@ import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
+import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Profile
 import org.springframework.core.io.InputStreamResource
 import org.springframework.core.io.Resource
@@ -27,9 +28,13 @@ class S3StorageService : StorageService {
             .withPathStyleAccessEnabled(true)
             .build()
 
-        // Create the bucket in LocalStack on startup if not present
-        if (!s3.doesBucketExistV2(BUCKET)) {
-            s3.createBucket(BUCKET)
+        try {
+            // Create the bucket in LocalStack on startup if not present
+            if (!s3.doesBucketExistV2(BUCKET)) {
+                s3.createBucket(BUCKET)
+            }
+        } catch (e: Exception) {
+            log.warn("Could not connect to S3/LocalStack on startup. S3StorageService might not be fully functional. Error: {}", e.message)
         }
     }
 
@@ -59,5 +64,6 @@ class S3StorageService : StorageService {
     companion object {
         private const val BUCKET = "avatar-bucket"
         private const val PREFIX = "http://localhost:4566"
+        private val log = LoggerFactory.getLogger(S3StorageService::class.java)
     }
 }
