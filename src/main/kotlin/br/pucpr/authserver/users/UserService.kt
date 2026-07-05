@@ -16,13 +16,16 @@ import org.springframework.stereotype.Service
 class UserService(
     val repository: UserRepository,
     val roleRepository: RoleRepository,
+    val avatarService: AvatarService,
     val jwt: Jwt
 ) {
     fun insert(user: User): User {
         if (repository.findByEmail(user.email) != null) {
             throw BadRequestException("User already exists")
         }
-        return repository.save(user)
+        val savedUser = repository.save(user)
+        savedUser.avatar = avatarService.save(savedUser)
+        return repository.save(savedUser)
     }
 
     fun findAll(dir: SortDir = SortDir.ASC) = when (dir) {
@@ -76,9 +79,19 @@ class UserService(
         log.info("User ${user.id} is logged in")
         return LoginResponse(
             token = jwt.createToken(user),
-            UserResponse(user)
+            user = toResponse(user)
         )
     }
+
+    fun regenerateAvatar(id: Long): String {
+        val user = findById(id)
+        user.avatar = avatarService.save(user)
+        repository.save(user)
+        return avatarService.urlFor(user.avatar)
+    }
+
+    fun toResponse(user: User) =
+        UserResponse(user, avatarService.urlFor(user.avatar))
 
     companion object {
         val log = LoggerFactory.getLogger(UserService::class.java)
