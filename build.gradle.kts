@@ -52,6 +52,10 @@ dependencies {
 	//Externalized configuration
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
+	//AWS SDK
+	implementation(platform("com.amazonaws:aws-java-sdk-bom:1.12.729"))
+	implementation("com.amazonaws:aws-java-sdk-s3")
+	implementation("javax.xml.bind:jaxb-api:2.4.0-b180830.0359")
 }
 
 kotlin {
