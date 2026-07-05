@@ -21,7 +21,7 @@ class S3StorageService : StorageService {
     private val s3: AmazonS3
 
     init {
-        val endpoint = AwsClientBuilder.EndpointConfiguration("http://localhost:4566", Regions.US_EAST_1.name)
+        val endpoint = AwsClientBuilder.EndpointConfiguration("http://localhost:4566", "us-east-1")
         s3 = AmazonS3ClientBuilder.standard()
             .withEndpointConfiguration(endpoint)
             .withCredentials(AWSStaticCredentialsProvider(BasicAWSCredentials("test", "test")))
